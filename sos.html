@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOS Emergency</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            border: 4px solid #4CAF50 ;
+        }
+
+        .sos-button {
+            width: 200px;
+            height: 120px;
+            background-color: #ffffff;
+            color: rgb(193, 46, 46);
+            font-size: 22px;
+            border: 5px solid red;
+            border-radius: 100%;
+            cursor: pointer;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            outline: none;
+            position: relative;
+        }
+
+        .sos-button:hover {
+            background-color: #ff0000;
+            color: white;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
+            transform: scale(1.1);
+        }
+
+        .sos-button:active {
+            transform: scale(0.9);
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .sos-button::before {
+            content: "🚨";
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+
+        .sos-button::after {
+            content: "SOS";
+            font-size: 20px;
+        }
+
+        .content {
+            margin-left: 50px;
+            text-align: left;
+            max-width: 60%;
+        }
+
+        h1 {
+            margin-right: 50px;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #e12b2b;
+        }
+
+        p {
+            text-align: center;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-left: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>SOS Emergency Alert</h1>
+        <button class="sos-button" onclick="triggerSOS()"></button>
+        <div class="content">
+            <p><strong>How It Works:</strong></p>
+            <p>Click the SOS button in case of an emergency. This will:</p>
+            <ul>
+                <li>Send an SOS alert to your family.</li>
+                <li>Press the button to send SOS</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const emergencyContacts = ["+919960343904", "+917972242838"];
+
+        function triggerSOS() {
+            if (confirm("Call emergency contact 1?")) {
+                window.location.href = `tel:${emergencyContacts[0]}`;
+                setTimeout(() => {
+                    if (confirm("Call second emergency contact?")) {
+                        window.location.href = `tel:${emergencyContacts[1]}`;
+                    }
+                }, 5000);
+            }
+
+            // Get the current location
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const location = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+                // Sending SOS with location
+                fetch("http://localhost:3000/api/send-sos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contacts: emergencyContacts,
+                        location: location
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert("SOS Alert sent to emergency contacts!");
+                })
+                .catch(error => {
+                    console.error("Error sending SOS:", error);
+                });
+            }, function(error) {
+                alert("Unable to retrieve location. SOS alert sent without location.");
+                fetch("http://localhost:3000/api/send-sos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contacts: emergencyContacts,
+                        location: "Location unavailable"
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert("SOS Alert sent to emergency contacts!");
+                })
+                .catch(error => {
+                    console.error("Error sending SOS:", error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

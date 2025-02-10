@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elderly Care Companion App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="user.jpg" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #logout-btn {
+      background-color: red;
+      color: white;
+      padding: 10px 20px;
+      border: 3px solid rgb(255, 255, 255);
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      font-size: 16px;
+      transition: all 0.5s ease;
+    }
+
+    #logout-btn:hover {
+      border: 3px solid red;
+      background-color: rgb(255, 255, 255);
+      color: red;
+    }
+    footer {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .footer-links a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+  }
+  
+  .footer-links a:hover {
+    text-decoration: underline;
+  }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Elderly Care Companion Website</h1>
+    <button id="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <nav id="motivational-quotes">
+    <!-- Motivational quotes will appear here -->
+  </nav>
+
+  <section class="working">
+    <div>
+      <h2>Welcome to Elderly </h2>
+    <p class="welcome-para">Our platform empowers seniors with easy daily management, including medication tracking, health monitoring, and family connection. With a user-friendly design, medication assistance and an SOS feature, it ensures safety, independence, and peace of mind for families.</p>
+    </div>
+    <div class="img"><img src="oldage.gif" class="old"></div>
+  </section>
+
+  <main class="container">
+    <section id="features">
+      <h2 class="section-title">Features</h2>
+      <div class="features">
+        <div class="feature-card">
+          <button type="button" onclick="window.location.href='healthtrack.html'" ><h3>📊Health Tracking</h3></button>
+          <p class="space">Monitor vital health metrics such as blood pressure and heart rate.</p>
+        </div>
+        <div class="feature-card">
+          <button type="button" onclick="window.location.href='medications.html'"  ><h3>💊Medication</h3></button>
+          <p class="space">Receive timely reminders for medications with easy-to-mark options.</p>
+        </div>
+        <div class="feature-card">
+          <button type="button"  onclick="window.location.href='remainder.html'" ><h3>⏰Reminders</h3></button>
+          <p class="space">Stay connected with caregivers through secure messaging and calls.</p>
+        </div>
+        <div class="feature-card">
+          <button type="button" onclick="window.location.href='sos.html'"><h3>🚨Emergency SOS</h3></button>
+          <p class="space">Quickly contact emergency services or family members with one click.</p>
+        </div>
+        <div class="feature-card">
+          <button type="button" onclick="window.location.href='activity.html'"><h3>Daily Activities</h3></button>
+          <p class="space">Quickly contact emergency services or family members with one click.</p>
+        </div>
+        <div class="feature-card">
+          <button type="button" onclick="window.location.href='trial.html'"><h3>Entertainment</h3></button>
+          <p class="space">Get yourselfs to have fun and connect with people</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Function to log out
+    function logout() {
+      localStorage.removeItem("userId");  // Clear userId from localStorage
+      window.location.href = "login.html"; // Redirect to login page
+    }
+
+    const quotes = [
+  "It's never too late to be what you might have been.",
+  "Age is an issue of mind over matter. If you don’t mind, it doesn’t matter.",
+  "The older I get, the more I realize that the days are precious.",
+  "You are never too old to set another goal or to dream a new dream.",
+  "Growing old is mandatory, but growing up is optional.",
+  "The best is yet to come.",
+  "Do not regret growing older. It is a privilege denied to many.",
+  "It’s not the years in your life that count, but the life in your years.",
+  "With age comes wisdom, and with wisdom comes peace."
+];
+
+    function showMotivationalQuote() {
+      const quoteElement = document.getElementById("motivational-quotes");
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      quoteElement.textContent = randomQuote;
+    }
+    setInterval(showMotivationalQuote, 3000);
+    showMotivationalQuote(); 
+  </script>
+  <footer>
+    <div class="footer-container">
+      <p>&copy;Elderly Care Website. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a> | 
+        <a href="#">Terms of Service</a> | 
+        <a href="contact.html">Contact Us</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

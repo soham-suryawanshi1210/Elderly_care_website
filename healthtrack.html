@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Health Check-ins</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; box-shadow: 5px 5px 10px rgba(0,0,0,0.1);border: 4px solid #4CAF50; }
+        input, button, textarea { margin: 10px; padding: 10px; width: 90%; border: 1px solid black;}
+        canvas { margin-top: 20px; }
+        .hbutton{
+            background-color: #4CAF50;
+            color:white;
+            width: 50%;
+            height: 50px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            border-radius: 10px;
+            border: 2px solid #4CAF50 ;
+            transition: all 0.5s ease;
+        }
+        .hbutton:hover{
+            background-color: white;
+            color: #4CAF50;
+        }
+        .h1{
+            color: #4CAF50;
+            font-size: 35px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="h1">Daily Health Check-in</h2>
+        <input type="number" id="bp" placeholder="Blood Pressure (mmHg)">
+        <input type="number" id="sugar" placeholder="Blood Sugar (mg/dL)">
+        <input type="number" id="heartRate" placeholder="Heart Rate (bpm)">
+        <input type="number" id="temperature" placeholder="Body Temperature (°C)">
+        <input type="number" id="weight" placeholder="Weight (kg)">
+        <input type="number" id="oxygen" placeholder="Oxygen Level (SpO2%)">
+        <textarea id="symptoms" placeholder="Daily Symptoms"></textarea>
+        <button  class="hbutton" onclick="logHealthData()">Log Health Data</button>
+        <button   class="hbutton" onclick="analyzeHealthData()">Analyze Data</button>
+        <h3>Health Data History</h3>
+        <ul id="history"></ul>
+        <h3>Analysis</h3>
+        <canvas id="healthChart"></canvas>
+        <p id="trendMessage"></p>
+    </div>
+
+    <script>
+        // Function to log health data
+        function logHealthData() {
+            const userId = localStorage.getItem("userId"); // Get the userId from localStorage
+
+
+            if (!userId) {
+                alert("User is not logged in. Please log in first.");
+                return;
+            }
+
+            const entry = {
+                user_id: userId,
+                bp: document.getElementById("bp").value,
+                sugar: document.getElementById("sugar").value,
+                heartRate: document.getElementById("heartRate").value,
+                temperature: document.getElementById("temperature").value,
+                weight: document.getElementById("weight").value,
+                oxygen: document.getElementById("oxygen").value,
+                symptoms: document.getElementById("symptoms").value
+            };
+
+            fetch("http://localhost:5002/api/health", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(entry),
+            })
+            .then(response => response.json())
+            .then(() => { 
+                alert("Data logged successfully!"); 
+                displayHealthData(); 
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        // Function to display logged health data
+        function displayHealthData() {
+            const userId = localStorage.getItem("userId"); // Get the user_id from localStorage
+
+            if (!userId) {
+                alert("User is not logged in. Please log in first.");
+                return;
+            }
+
+            fetch(`http://localhost:5002/api/health?user_id=${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                let historyList = document.getElementById("history");
+                historyList.innerHTML = "";
+                data.forEach(entry => {
+                    let li = document.createElement("li");
+                    li.textContent = `${entry.date}: BP-${entry.bp}, Sugar-${entry.sugar}, HR-${entry.heartRate}`;
+                    historyList.appendChild(li);
+                });
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        // Function to analyze health data
+        function analyzeHealthData() {
+            const userId = localStorage.getItem("userId"); // Get the user_id from localStorage
+
+            if (!userId) {
+                alert("User is not logged in. Please log in first.");
+                return;
+            }
+
+            fetch(`http://localhost:5002/api/health/analysis/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                const dates = data.map(entry => entry.date);
+                const sugarLevels = data.map(entry => entry.avg_sugar);
+                const bpLevels = data.map(entry => entry.avg_bp);
+                const heartRates = data.map(entry => entry.avg_heartRate);
+
+                const ctx = document.getElementById("healthChart").getContext("2d");
+
+                if (window.myChart) {
+                    window.myChart.destroy();
+                }
+
+                window.myChart = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                        labels: dates,
+                        datasets: [
+                            {
+                                label: "Avg Sugar Level (mg/dL)",
+                                data: sugarLevels,
+                                backgroundColor: "rgba(255, 99, 132, 0.2)",
+                                borderColor: "rgba(255, 99, 132, 1)",
+                                borderWidth: 1,
+                            },
+                            {
+                                label: "Avg BP (mmHg)",
+                                data: bpLevels,
+                                backgroundColor: "rgba(54, 162, 235, 0.2)",
+                                borderColor: "rgba(54, 162, 235, 1)",
+                                borderWidth: 1,
+                            },
+                            {
+                                label: "Avg Heart Rate (bpm)",
+                                data: heartRates,
+                                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                                borderColor: "rgba(75, 192, 192, 1)",
+                                borderWidth: 1,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                let trendMessage = "Trend Analysis: ";
+                trendMessage += checkTrend(sugarLevels, "Sugar Level");
+                trendMessage += checkTrend(bpLevels, "Blood Pressure");
+                trendMessage += checkTrend(heartRates, "Heart Rate");
+                document.getElementById("trendMessage").textContent = trendMessage;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("trendMessage").textContent = "An error occurred while fetching the analysis data.";
+            });
+        }
+
+        // Function to check if the trend is increasing, decreasing, or stable
+        function checkTrend(data, label) {
+            const trend = data[data.length - 1] > data[0] ? "increasing" : data[data.length - 1] < data[0] ? "decreasing" : "stable";
+            return `${label} is ${trend}. `;
+        }
+
+        // Call displayHealthData on initial load
+        displayHealthData();
+    </script>
+</body>
+</html>

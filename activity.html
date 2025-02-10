@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Activities</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .container {
+            width: 650px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 4px solid #28a745;
+        }
+        h2 {
+            color: #333;
+        }
+        .task {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-top: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+        button {
+            padding: 8px 12px;
+            width: 100px;
+            height: 50px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition:all 0.5s ease;
+        }
+        button:hover{
+            background-color: #ffffff;
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        input {
+            padding: 8px;
+            width: 150px;
+            height: 30px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .image-container {
+            margin-bottom: 5px;
+        }
+        .image-container img {
+            width: 650px; 
+            height: 200px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="image-container">
+            <img src="activities.gif" alt="Daily Activities">
+        </div>
+        <h2>Daily Activities & Challenges</h2>
+        <h3 style="color: #28a745;">Enter your activities here!</h3>
+
+        <div>
+            <input type="text" id="taskInput" placeholder="Enter activity" />
+            <input type="text" id="durationInput" placeholder="Duration (e.g., 10 mins)" />
+            <button onclick="addActivity()">Add</button>
+        </div>
+
+        <div id="activities-list"></div>
+    </div>
+
+    <script>
+        const userId = localStorage.getItem("userId");  // Retrieve the user ID from localStorage
+
+        if (!userId) {
+            alert("You are not logged in!");
+            window.location.href = "login.html";  // Redirect to login page if user is not logged in
+        }
+
+        // Fetch activities specific to the logged-in user
+        async function fetchActivities() {
+            const response = await fetch(`http://localhost:3000/api/activities?user_id=${userId}`);
+            const activities = await response.json();
+            const activitiesList = document.getElementById("activities-list");
+            activitiesList.innerHTML = "";
+
+            activities.forEach(activity => {
+                const taskElement = document.createElement("div");
+                taskElement.classList.add("task");
+
+                if (activity.completed) {
+                    taskElement.classList.add("completed");
+                }
+
+                taskElement.innerHTML = `
+                    <span>${activity.task} (${activity.duration})</span>
+                    <button onclick="completeActivity(${activity.id})" ${activity.completed ? "disabled" : ""}>
+                        ${activity.completed ? "Completed" : "Mark Done"}
+                    </button>
+                `;
+
+                activitiesList.appendChild(taskElement);
+            });
+        }
+
+        // Mark an activity as completed for the specific user
+        async function completeActivity(id) {
+            await fetch("http://localhost:3000/api/complete-activity", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, user_id: userId })  // Include user_id in the request
+            });
+            fetchActivities();
+        }
+
+        // Add a new activity for the specific user
+        async function addActivity() {
+            const task = document.getElementById("taskInput").value;
+            const duration = document.getElementById("durationInput").value;
+
+            if (!task || !duration) {
+                alert("Please fill in both fields.");
+                return;
+            }
+
+            await fetch("http://localhost:3000/api/add-activity", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ task, duration, user_id: userId })  // Include user_id in the request
+            });
+
+            document.getElementById("taskInput").value = "";
+            document.getElementById("durationInput").value = "";
+
+            fetchActivities();
+        }
+
+        fetchActivities();
+
+        // Refresh activities every 5 minutes
+        setInterval(fetchActivities, 300000);
+    </script>
+
+</body>
+</html>

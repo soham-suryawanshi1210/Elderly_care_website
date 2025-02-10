@@ -1,0 +1,112 @@
+[
+  {
+    "user_id": "1",
+    "date": "2025-02-06",
+    "bp": "55",
+    "sugar": "88",
+    "heartRate": "4454",
+    "temperature": "5",
+    "weight": "88",
+    "oxygen": "55",
+    "symptoms": "fever"
+  },
+  {
+    "user_id": "1",
+    "date": "2025-02-06",
+    "bp": "",
+    "sugar": "",
+    "heartRate": "",
+    "temperature": "",
+    "weight": "",
+    "oxygen": "",
+    "symptoms": ""
+  },
+  {
+    "user_id": "1",
+    "date": "2025-02-06",
+    "bp": "55",
+    "sugar": "98",
+    "heartRate": "80",
+    "temperature": "36",
+    "weight": "67",
+    "oxygen": "93",
+    "symptoms": "normal"
+  },
+  {
+    "user_id": "1",
+    "date": "2025-02-06",
+    "bp": "80",
+    "sugar": "120",
+    "heartRate": "95",
+    "temperature": "35",
+    "weight": "66",
+    "oxygen": "92",
+    "symptoms": "normal"
+  },
+  {
+    "user_id": "1",
+    "date": "2025-02-06",
+    "bp": "80",
+    "sugar": "120",
+    "heartRate": "95",
+    "temperature": "35",
+    "weight": "66",
+    "oxygen": "92",
+    "symptoms": "normal"
+  },
+  {
+    "user_id": "1",
+    "date": "2025-02-06",
+    "bp": "80",
+    "sugar": "120",
+    "heartRate": "95",
+    "temperature": "35",
+    "weight": "66",
+    "oxygen": "92",
+    "symptoms": "normal"
+  },
+  {
+    "user_id": "1",
+    "date": "2025-02-06",
+    "bp": "80",
+    "sugar": "120",
+    "heartRate": "95",
+    "temperature": "35",
+    "weight": "66",
+    "oxygen": "92",
+    "symptoms": "normal"
+  },
+  {
+    "user_id": "1",
+    "date": "2025-02-06",
+    "bp": "80",
+    "sugar": "120",
+    "heartRate": "95",
+    "temperature": "35",
+    "weight": "66",
+    "oxygen": "92",
+    "symptoms": "normal"
+  },
+  {
+    "user_id": "1",
+    "date": "2025-02-06",
+    "bp": "",
+    "sugar": "",
+    "heartRate": "",
+    "temperature": "",
+    "weight": "",
+    "oxygen": "",
+    "symptoms": ""
+  },
+  {
+    "user_id": "1",
+    "date": "2025-02-05",
+    "bp": "85",
+    "sugar": "112",
+    "heartRate": "95",
+    "temperature": "36",
+    "weight": "66",
+    "oxygen": "91",
+    "symptoms": "normal"
+  }
+]

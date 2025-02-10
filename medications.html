@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medication Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            border: 5px solid #4CAF50;
+            overflow: auto;
+            margin-top: 120px;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 90%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            color: #333;
+            margin: auto;
+        }
+        .checkbox-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .checkbox-group label {
+            margin-right: 1rem;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #4CAF50;
+            color: #fff;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .submit-btn:hover {
+            background-color: #ffffff;
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+        }
+        .medication-item {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Medication Entry</h1>
+        <form id="medicationForm">
+            <div class="form-group">
+                <label for="medicineName">Medicine Name:</label>
+                <input type="text" id="medicineName" name="medicineName" required>
+            </div>
+            <div class="form-group">
+                <label for="numTablets">Number of Tablets:</label>
+                <input type="number" id="numTablets" name="numTablets" required>
+            </div>
+            <div class="form-group">
+                <label for="tabletsPerDay">Tablets Per Day:</label>
+                <input type="number" id="tabletsPerDay" name="tabletsPerDay" required>
+            </div>
+            <div class="form-group">
+                <label>Time of Day:</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="timeOfDay" value="morning"> Morning</label>
+                    <label><input type="checkbox" name="timeOfDay" value="afternoon"> Afternoon</label>
+                    <label><input type="checkbox" name="timeOfDay" value="evening"> Evening</label>
+                    <label><input type="checkbox" name="timeOfDay" value="night"> Night</label>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn">Add Medication</button>
+        </form>
+
+        <h2>Existing Medications</h2>
+        <div id="medicationList"></div>
+    </div>
+
+    <script>
+        // Fetch medications when page loads
+        window.onload = async function () {
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                alert("User not logged in.");
+                return;
+            }
+
+            const response = await fetch(`http://localhost:3000/api/medications?userId=${userId}`);
+            const medications = await response.json();
+
+            const medicationList = document.getElementById('medicationList');
+            medicationList.innerHTML = '';
+
+            medications.forEach(medication => {
+                const medicationItem = document.createElement('div');
+                medicationItem.classList.add('medication-item');
+                medicationItem.innerHTML = `
+                    <p><strong>Medicine Name:</strong> ${medication.medicine_name}</p>
+                    <p><strong>Tablets:</strong> ${medication.num_tablets}</p>
+                    <p><strong>Times:</strong> ${medication.time_of_day.join(', ')}</p>
+                    <button class="delete-btn" onclick="deleteMedication(${medication.id})">Delete</button>
+                `;
+                medicationList.appendChild(medicationItem);
+            });
+        };
+
+        // Add medication to the database
+        document.getElementById('medicationForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                alert("User not logged in.");
+                return;
+            }
+
+            const selectedTimes = Array.from(document.querySelectorAll('input[name="timeOfDay"]:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (selectedTimes.length === 0) {
+                alert('Please select at least one time of day.');
+                return;
+            }
+
+            const formData = {
+                medicineName: document.getElementById('medicineName').value,
+                numTablets: document.getElementById('numTablets').value,
+                tabletsPerDay: document.getElementById('tabletsPerDay').value,
+                timeOfDay: selectedTimes,
+                userId: userId // Attach userId
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/medications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Medication added successfully!');
+                    document.getElementById('medicationForm').reset();
+                    window.onload(); // Reload medications after adding a new one
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to add medication: ${errorData.error}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while adding the medication.');
+            }
+        });
+
+        // Delete medication from the database
+        async function deleteMedication(medicationId) {
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                alert("User not logged in.");
+                return;
+            }
+
+            const confirmDelete = confirm("Are you sure you want to delete this medication?");
+            if (!confirmDelete) return;
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/medications/${medicationId}?userId=${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Medication deleted successfully!');
+                    window.onload(); // Reload medications after deletion
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to delete medication: ${errorData.error}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the medication.');
+            }
+        }
+    </script>
+</body>
+</html>

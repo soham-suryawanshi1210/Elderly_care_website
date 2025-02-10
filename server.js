@@ -174,10 +174,10 @@ app.get('/api/checkReminders', async (req, res) => {
 });
 
 
-const accountSid = "AC2f93baab3b36394515c97b96f3665a96"; // Get from Twilio
-const authToken = "dd1c5add1aa2d4455f007748de3abb5d";  // Get from Twilio
+const accountSid = ""; // Get from Twilio
+const authToken = "";  // Get from Twilio
 const twilioClient = twilio(accountSid, authToken);
-const twilioNumber = "+12162086729"; // Twilio phone number
+const twilioNumber = ""; // Twilio phone number
 
 // API to send SOS SMS
 app.post("/api/send-sos", async (req, res) => {
